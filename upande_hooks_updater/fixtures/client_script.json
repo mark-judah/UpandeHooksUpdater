@@ -1,0 +1,13 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Hooks File Update",
+  "enabled": 1,
+  "modified": "2025-07-12 10:51:06.946532",
+  "module": "Upande Hooks Updater",
+  "name": "Hooks Updater",
+  "script": "frappe.ui.form.on('Hooks File Update', {\n    pull_latest_customizations(frm) {\n        let module_value = frm.doc.module || \"\";\n        let current_user = frappe.session.user;\n\n        frappe.call({\n            method: \"upande_hooks_updater.server_scripts.update_hooks_from_recent_customizations.update_hooks_file\",\n            args: {\n                module: module_value,\n                currentUser: current_user\n            },\n            callback: function(response) {\n                const data = response.message;\n\n                if (data && data.fixtures) {\n                    frm.set_value(\"customizations\", data.fixtures);\n                    frm.set_value(\"my_customizations\", JSON.stringify(data.users_customizations, null, 2));\n\n                    if (data.skipped) {\n                        const skipped_text = Object.entries(data.skipped)\n                            .map(([doctype, names]) => `${doctype}: ${names.join(\", \")}`)\n                            .join(\"\\n\");\n\n                        frm.set_value(\"skipped_duplicates\", skipped_text);\n                    } else {\n                        frm.set_value(\"skipped_duplicates\", \"\");\n                    }\n\n                    frappe.show_alert({\n                        message: __(\"✅ Fixtures pulled and updated.\"),\n                        indicator: 'green'\n                    });\n\n                    frm.save();\n                } else {\n                    frappe.msgprint(\"⚠️ No data returned from server.\");\n                }\n            },\n            error: function(err) {\n                frappe.msgprint(\"❌ Server error.\");\n                console.error(err);\n            }\n        });\n    }\n});\n",
+  "view": "Form"
+ }
+]
