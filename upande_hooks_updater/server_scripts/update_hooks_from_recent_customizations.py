@@ -12,7 +12,8 @@ def update_hooks_file(module=None, currentUser=None):
         "Workflow Action Master",
         "Custom Field",
         "Property Setter",
-        "Email Template"
+        "Email Template",
+        "Custom DocPerm"
     ]
     docname = None
     customizations_map = {}
